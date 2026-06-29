@@ -1,0 +1,75 @@
+{
+  "pages": [
+    {
+      "path": "pages/index/index",
+      "style": {
+        "navigationBarTitleText": "绩效工作台",
+        "navigationBarBackgroundColor": "#2979ff",
+        "navigationBarTextStyle": "white"
+      }
+    },
+    {
+      "path": "pages/performance/my-eval",
+      "style": {
+        "navigationBarTitleText": "我的绩效",
+        "navigationBarBackgroundColor": "#2979ff",
+        "navigationBarTextStyle": "white"
+      }
+    },
+    {
+      "path": "pages/performance/team-eval",
+      "style": {
+        "navigationBarTitleText": "团队评估",
+        "navigationBarBackgroundColor": "#2979ff",
+        "navigationBarTextStyle": "white"
+      }
+    },
+    {
+      "path": "pages/admin/config",
+      "style": {
+        "navigationBarTitleText": "管理配置",
+        "navigationBarBackgroundColor": "#2979ff",
+        "navigationBarTextStyle": "white"
+      }
+    }
+  ],
+  "tabBar": {
+    "color": "#909399",
+    "selectedColor": "#2979ff",
+    "backgroundColor": "#ffffff",
+    "borderStyle": "black",
+    "list": [
+      {
+        "pagePath": "pages/index/index",
+        "text": "工作台",
+        "iconPath": "static/tabbar/dashboard.png",
+        "selectedIconPath": "static/tabbar/dashboard-active.png"
+      },
+      {
+        "pagePath": "pages/performance/my-eval",
+        "text": "我的绩效",
+        "iconPath": "static/tabbar/myeval.png",
+        "selectedIconPath": "static/tabbar/myeval-active.png"
+      },
+      {
+        "pagePath": "pages/performance/team-eval",
+        "text": "团队评估",
+        "iconPath": "static/tabbar/team.png",
+        "selectedIconPath": "static/tabbar/team-active.png"
+      },
+      {
+        "pagePath": "pages/admin/config",
+        "text": "管理",
+        "iconPath": "static/tabbar/admin.png",
+        "selectedIconPath": "static/tabbar/admin-active.png"
+      }
+    ]
+  },
+  "globalStyle": {
+    "navigationBarTextStyle": "black",
+    "navigationBarTitleText": "绩效管理",
+    "navigationBarBackgroundColor": "#ffffff",
+    "backgroundColor": "#f5f6fa"
+  },
+  "uniIdRouter": {}
+}

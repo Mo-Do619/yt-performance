@@ -1,0 +1,81 @@
+/* 绩效管理系统主题变量 */
+
+/* ===== 品牌色 ===== */
+$color-primary: #2979ff;
+$color-primary-light: #5c9dff;
+$color-primary-dark: #1a5cd4;
+
+/* ===== 功能色 ===== */
+$color-success: #19be6b;
+$color-warning: #ff9900;
+$color-danger: #fa3534;
+$color-info: #909399;
+$color-purple: #722ed1;
+
+/* ===== 流程状态色 ===== */
+$color-goal-setting: #2979ff;
+$color-goal-confirming: #ff9900;
+$color-self-evaluating: #ff9900;
+$color-manager-evaluating: #722ed1;
+$color-calibrating: #19be6b;
+$color-archived: #909399;
+
+/* ===== 绩效等级色 ===== */
+$grade-s: #ff6b00;
+$grade-a: #19be6b;
+$grade-b: #2979ff;
+$grade-c: #ff9900;
+$grade-d: #fa3534;
+
+/* ===== 评估状态色 ===== */
+$eval-completed: #19be6b;
+$eval-pending: #ff9900;
+$eval-draft: #909399;
+
+/* ===== 截止时间色 ===== */
+$deadline-normal: #19be6b;
+$deadline-approaching: #ff9900;
+$deadline-overdue: #fa3534;
+
+/* ===== 文字色 ===== */
+$text-primary: #1a1a1a;
+$text-secondary: #666666;
+$text-hint: #999999;
+$text-disabled: #c0c0c0;
+$text-inverse: #ffffff;
+
+/* ===== 背景色 ===== */
+$bg-color: #f5f6fa;
+$bg-white: #ffffff;
+$bg-grey: #f8f8f8;
+$bg-hover: #f1f1f1;
+
+/* ===== 边框色 ===== */
+$border-color: #e8e8e8;
+$border-light: #f0f0f0;
+
+/* ===== 圆角 ===== */
+$radius-sm: 6rpx;
+$radius-base: 12rpx;
+$radius-lg: 16rpx;
+$radius-xl: 24rpx;
+$radius-round: 9999rpx;
+
+/* ===== 间距 ===== */
+$spacing-xs: 8rpx;
+$spacing-sm: 12rpx;
+$spacing-base: 20rpx;
+$spacing-lg: 30rpx;
+$spacing-xl: 40rpx;
+
+/* ===== 字号 ===== */
+$font-xs: 20rpx;
+$font-sm: 24rpx;
+$font-base: 28rpx;
+$font-lg: 32rpx;
+$font-xl: 36rpx;
+$font-xxl: 44rpx;
+
+/* ===== 阴影 ===== */
+$shadow-card: 0 2rpx 12rpx rgba(0,0,0,0.04);
+$shadow-drawer: -4rpx 0 24rpx rgba(0,0,0,0.08);
