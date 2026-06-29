@@ -15,6 +15,7 @@
       :indicatorConfirmStatus="myPerformance?.indicator_confirm_status || ''"
       :pendingEvalCount="store.pendingEvalCount"
       :pendingConfirmCount="store.pendingConfirmCount"
+      :pendingReviewCount="store.pendingReviewCount"
       :pendingCalibrateCount="store.pendingCalibrateCount"
       @navigate="handleNavigate"
     />
@@ -23,13 +24,13 @@
     <view class="role-switcher">
       <text class="switcher-label">切换角色体验：</text>
       <view class="switcher-btns">
-        <button
+        <view
           v-for="r in roles"
           :key="r.value"
           class="switcher-btn"
-          :class="{ 'switcher-active': store.user.role === r.value }"
+          :class="{ 'switcher-active': store.selectedRole === r.value }"
           @click="store.switchRole(r.value)"
-        >{{ r.label }}</button>
+        >{{ r.label }}</view>
       </view>
     </view>
 
@@ -66,6 +67,7 @@ const currentDeadline = computed(() => {
 const roles = [
   { value: 'employee', label: '员工' },
   { value: 'manager', label: '主管' },
+  { value: 'reviewer', label: '部门负责人' },
   { value: 'admin', label: '管理员' }
 ]
 
@@ -73,6 +75,8 @@ function handleNavigate(page, tab) {
   if (page === 'my-eval') {
     uni.switchTab({ url: '/pages/performance/my-eval' })
   } else if (page === 'team-eval') {
+    // 通过 uni 的 eventChannel 或直接设置全局变量传递默认 tab
+    uni.$emit('teamEvalTab', tab || 'eval')
     uni.switchTab({ url: '/pages/performance/team-eval' })
   } else if (page === 'admin') {
     uni.navigateTo({ url: '/pages/admin/config' })

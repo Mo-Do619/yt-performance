@@ -4,7 +4,7 @@
 export const NODE_STATUS = {
   GOAL_SETTING: 'goal_setting',
   GOAL_CONFIRMING: 'goal_confirming',
-  SELF_EVALUATING: 'self_evaluating',
+  REVIEWING: 'reviewing',
   MANAGER_EVALUATING: 'manager_evaluating',
   CALIBRATING: 'calibrating',
   ARCHIVED: 'archived'
@@ -14,15 +14,17 @@ export const NODE_STATUS = {
 export const NODE_MAP = {
   goal_setting: { label: '目标与自评', color: '#2979ff', step: 0 },
   goal_confirming: { label: '指标确认中', color: '#ff9900', step: 1 },
-  manager_evaluating: { label: '多方评估中', color: '#722ed1', step: 2 },
-  calibrating: { label: '绩效校准', color: '#19be6b', step: 3 },
-  archived: { label: '结果归档', color: '#909399', step: 4 }
+  reviewing: { label: '复核中', color: '#ff6b00', step: 2 },
+  manager_evaluating: { label: '多方评估中', color: '#722ed1', step: 3 },
+  calibrating: { label: '绩效校准', color: '#19be6b', step: 4 },
+  archived: { label: '结果归档', color: '#909399', step: 5 }
 }
 
 // ===== 步骤条顺序 =====
 export const STEPS = [
   { key: 'goal_setting', label: '目标与自评' },
   { key: 'goal_confirming', label: '指标确认' },
+  { key: 'reviewing', label: '复核' },
   { key: 'manager_evaluating', label: '多方评估' },
   { key: 'calibrating', label: '绩效校准' },
   { key: 'archived', label: '结果归档' }

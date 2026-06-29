@@ -1,5 +1,15 @@
 <template>
   <view class="team-eval-page">
+    <!-- 无权限 -->
+    <view v-if="!store.isManager && !store.isAdmin" class="no-permission">
+      <EmptyState
+        icon="🔒"
+        title="无权访问"
+        desc="仅主管和管理员可以查看团队评估"
+      />
+    </view>
+
+    <template v-else>
     <!-- Tab 切换 -->
     <view class="tab-bar">
       <view
@@ -59,6 +69,58 @@
       <EmptyState v-else icon="📌" title="暂无待确认指标" desc="所有下属的指标已确认" />
     </view>
 
+    <!-- 待复核 Tab -->
+    <view v-if="activeTab === 'review'" class="tab-content">
+      <view v-if="store.pendingReviewCount > 0">
+        <view
+          v-for="perf in store.pendingReviews"
+          :key="perf.performance_id"
+          class="card review-card"
+        >
+          <EmployeeListItem :performance="perf" tab="review" />
+
+          <!-- 指标明细 -->
+          <view class="review-indicators">
+            <text class="review-section-label">指标完成情况</text>
+            <view v-for="ind in perf.indicators" :key="ind.id" class="review-ind-item">
+              <view class="review-ind-header">
+                <text class="review-ind-name">{{ ind.name }}</text>
+                <text class="review-ind-weight">权重 {{ (ind.weight * 100).toFixed(0) }}%</text>
+              </view>
+              <view class="review-ind-row">
+                <text class="review-ind-label">目标</text>
+                <text class="review-ind-val">{{ ind.target }}</text>
+              </view>
+              <view class="review-ind-row">
+                <text class="review-ind-label">自评</text>
+                <text class="review-ind-score">{{ ind.self_score ?? '--' }} 分</text>
+              </view>
+            </view>
+          </view>
+
+          <!-- 自评总结 -->
+          <view class="review-content">
+            <text class="review-section-label">员工自评总结</text>
+            <text class="review-self-text">{{ perf.self_evaluation?.content || '暂无' }}</text>
+            <text class="review-self-score">综合自评: {{ perf.self_evaluation?.score ?? '--' }} 分</text>
+          </view>
+          <view class="review-comment-input">
+            <text class="review-input-label">复核意见</text>
+            <textarea
+              v-model="reviewComments[perf.performance_id]"
+              class="review-textarea"
+              placeholder="请对员工自评内容进行复核，确认绩效完成情况..."
+            />
+          </view>
+          <view class="review-actions">
+            <button class="btn-reject-sm" @click="handleReviewReject(perf)">驳回复核</button>
+            <button class="btn-confirm-sm" @click="handleReviewApprove(perf)">复核通过</button>
+          </view>
+        </view>
+      </view>
+      <EmptyState v-else icon="🔍" title="暂无待复核" desc="指标确认通过后，待复核的绩效将在此显示" />
+    </view>
+
     <!-- 待校准 Tab -->
     <view v-if="activeTab === 'calibrate'" class="tab-content">
       <view v-if="store.pendingCalibrateCount > 0">
@@ -84,6 +146,7 @@
       @save="handleSaveScore"
       @submit="handleSubmitScore"
     />
+    </template>
   </view>
 </template>
 
@@ -102,10 +165,17 @@ const drawerPerformance = ref(null)
 const drawerMode = ref('eval')
 const rejectTargetId = ref('')
 const rejectReason = ref('')
+const reviewComments = ref({})
+
+// switchTab 不会重新 mount，监听事件放在 module 层级
+uni.$on('teamEvalTab', (tab) => {
+  if (tab) activeTab.value = tab
+})
 
 const tabs = computed(() => [
   { key: 'eval', label: '待打分', count: store.pendingEvalCount },
   { key: 'confirm', label: '待确认指标', count: store.pendingConfirmCount },
+  { key: 'review', label: '待复核', count: store.pendingReviewCount },
   { key: 'calibrate', label: '校准中', count: store.pendingCalibrateCount }
 ])
 
@@ -173,6 +243,22 @@ function submitReject(perf) {
 
 function viewIndicators(perf) {
   // 查看指标详情，可在这里扩展跳转到指标详情页
+}
+
+function handleReviewApprove(perf) {
+  const comment = reviewComments.value[perf.performance_id] || ''
+  store.approveReview(perf.employee.id, comment)
+  uni.showToast({ title: '复核已通过', icon: 'success' })
+}
+
+function handleReviewReject(perf) {
+  const comment = reviewComments.value[perf.performance_id] || ''
+  if (!comment) {
+    uni.showToast({ title: '请填写复核意见', icon: 'none' })
+    return
+  }
+  store.rejectReview(perf.employee.id, comment)
+  uni.showToast({ title: '复核已驳回', icon: 'none' })
 }
 </script>
 
@@ -269,5 +355,124 @@ function viewIndicators(perf) {
   justify-content: flex-end;
   gap: 12rpx;
   margin-top: 12rpx;
+}
+
+.review-card {
+  margin-top: 12rpx;
+  padding: 20rpx;
+}
+
+.review-content {
+  padding: 16rpx 0;
+  border-top: 1px solid $border-light;
+  border-bottom: 1px solid $border-light;
+  margin: 16rpx 0;
+}
+
+.review-section-label {
+  font-size: $font-sm;
+  font-weight: 600;
+  color: $text-primary;
+  display: block;
+  margin-bottom: 12rpx;
+}
+
+.review-indicators {
+  padding: 16rpx 0;
+  border-top: 1px solid $border-light;
+  border-bottom: 1px solid $border-light;
+  margin: 16rpx 0;
+}
+
+.review-ind-item {
+  background: $bg-grey;
+  border-radius: $radius-sm;
+  padding: 16rpx;
+  margin-bottom: 12rpx;
+}
+
+.review-ind-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 10rpx;
+}
+
+.review-ind-name {
+  font-size: $font-sm;
+  font-weight: 500;
+  color: $text-primary;
+}
+
+.review-ind-weight {
+  font-size: $font-xs;
+  color: $color-primary;
+  background: rgba(41,121,255,0.1);
+  padding: 2rpx 10rpx;
+  border-radius: $radius-sm;
+}
+
+.review-ind-row {
+  display: flex;
+  margin-top: 6rpx;
+}
+
+.review-ind-label {
+  width: 80rpx;
+  font-size: $font-xs;
+  color: $text-hint;
+}
+
+.review-ind-val {
+  font-size: $font-xs;
+  color: $text-secondary;
+  flex: 1;
+}
+
+.review-ind-score {
+  font-size: $font-sm;
+  font-weight: 600;
+  color: $color-primary;
+}
+
+.review-self-text {
+  font-size: $font-sm;
+  color: $text-secondary;
+  line-height: 1.5;
+}
+
+.review-self-score {
+  font-size: $font-sm;
+  color: $color-primary;
+  font-weight: 600;
+  margin-top: 8rpx;
+}
+
+.review-comment-input {
+  margin-top: 16rpx;
+}
+
+.review-input-label {
+  font-size: $font-sm;
+  color: $text-secondary;
+  margin-bottom: 8rpx;
+  display: block;
+}
+
+.review-textarea {
+  width: 100%;
+  height: 120rpx;
+  border: 2rpx solid $border-color;
+  border-radius: $radius-sm;
+  padding: 12rpx;
+  font-size: $font-sm;
+  background: $bg-grey;
+}
+
+.review-actions {
+  display: flex;
+  gap: 16rpx;
+  justify-content: flex-end;
+  margin-top: 16rpx;
 }
 </style>

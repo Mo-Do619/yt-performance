@@ -68,6 +68,22 @@
       <text class="todo-arrow">→</text>
     </view>
 
+    <!-- 部门负责人：待复核 -->
+    <view
+      v-if="showReviewTodo && pendingReviewCount > 0"
+      class="todo-card card todo-important"
+      @click="$emit('navigate', 'team-eval', 'review')"
+    >
+      <view class="todo-left">
+        <text class="todo-icon">🔍</text>
+        <view class="todo-info">
+          <text class="todo-title">您有 {{ pendingReviewCount }} 份绩效待复核</text>
+          <text class="todo-desc">指标已确认，请复核员工自评完成情况</text>
+        </view>
+      </view>
+      <text class="todo-arrow">→</text>
+    </view>
+
     <!-- 主管：待校准 -->
     <view
       v-if="showCalibrateTodo && pendingCalibrateCount > 0"
@@ -121,6 +137,7 @@ const props = defineProps({
   indicatorConfirmStatus: { type: String, default: '' },
   pendingEvalCount: { type: Number, default: 0 },
   pendingConfirmCount: { type: Number, default: 0 },
+  pendingReviewCount: { type: Number, default: 0 },
   pendingCalibrateCount: { type: Number, default: 0 }
 })
 
@@ -153,6 +170,10 @@ const showEvalTodo = computed(() =>
   (props.role === 'manager' || props.role === 'admin') && props.pendingEvalCount > 0
 )
 
+const showReviewTodo = computed(() =>
+  (props.role === 'manager' || props.role === 'admin') && props.pendingReviewCount > 0
+)
+
 const showCalibrateTodo = computed(() =>
   (props.role === 'manager' || props.role === 'admin') && props.pendingCalibrateCount > 0
 )
@@ -162,7 +183,7 @@ const showReminder = computed(() => props.role === 'admin')
 
 const hasAnyTodo = computed(() =>
   showIndicatorTodo.value || showSelfEvalTodo.value ||
-  showConfirmTodo.value || showEvalTodo.value || showCalibrateTodo.value ||
+  showConfirmTodo.value || showReviewTodo.value || showEvalTodo.value || showCalibrateTodo.value ||
   showReminder.value
 )
 </script>

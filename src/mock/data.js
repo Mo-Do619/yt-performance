@@ -16,7 +16,8 @@ export const users = {
   'U003': { id: 'U003', name: '赵xx', department: '产品部', avatar: '' },
   'U004': { id: 'U004', name: '孙xx', department: '广州研发中心', avatar: '' },
   'M001': { id: 'M001', name: '张总', department: '广州研发中心', avatar: '' },
-  'M002': { id: 'M002', name: '王工', department: '广州研发中心', avatar: '' }
+  'M002': { id: 'M002', name: '王工', department: '广州研发中心', avatar: '' },
+  'M003': { id: 'M003', name: '李总', department: '广州研发中心', avatar: '' }
 }
 
 // ===== 绩效数据 =====
@@ -62,6 +63,9 @@ export const performances = [
       }
     ],
     current_node: 'goal_setting',
+    reviewer_id: 'M003',
+    review_status: 'pending',
+    review_comment: '',
     performance_grade: null,
     final_score: null,
     deadlines: {
@@ -79,12 +83,12 @@ export const performances = [
       { id: 'I101', name: '数据中台建设', weight: 0.5, target: '完成数据中台V2版本架构升级', self_score: 80 },
       { id: 'I102', name: 'API 网关优化', weight: 0.5, target: '优化网关性能，P99延迟降低30%', self_score: 85 }
     ],
-    indicator_confirm_status: 'pending_confirm',
-    indicator_confirm_by: null,
+    indicator_confirm_status: 'confirmed',
+    indicator_confirm_by: 'M001',
     self_evaluation: {
-      content: '',
-      score: null,
-      submitted_at: null
+      content: '本季度重点完成了数据中台V2版本架构升级，系统已稳定运行。API网关性能优化方面，通过引入缓存层和连接池优化，P99延迟降低了35%，超额完成目标。',
+      score: 82.5,
+      submitted_at: '2026-09-12'
     },
     manager_evaluations: [
       {
@@ -99,7 +103,10 @@ export const performances = [
         status: 'pending'
       }
     ],
-    current_node: 'goal_confirming',
+    current_node: 'reviewing',
+    reviewer_id: 'M003',
+    review_status: 'pending',
+    review_comment: '',
     performance_grade: null,
     final_score: null,
     deadlines: {
@@ -150,6 +157,9 @@ export const performances = [
       }
     ],
     current_node: 'calibrating',
+    reviewer_id: 'M003',
+    review_status: 'approved',
+    review_comment: '自评内容属实，绩效完成情况良好，同意进入评估阶段。经复核，各项指标完成度与自评基本一致。',
     performance_grade: 'A',
     final_score: 89.44,
     deadlines: {
@@ -176,6 +186,9 @@ export const performances = [
     },
     manager_evaluations: [],
     current_node: 'goal_setting',
+    reviewer_id: 'M003',
+    review_status: 'pending',
+    review_comment: '',
     performance_grade: null,
     final_score: null,
     deadlines: {

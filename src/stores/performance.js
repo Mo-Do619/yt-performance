@@ -8,6 +8,7 @@ export const usePerformanceStore = defineStore('performance', () => {
   const user = ref({ ...currentUser })
   const list = ref(JSON.parse(JSON.stringify(mockPerformances)))
   const viewingEmployeeId = ref(null)
+  const selectedRole = ref('manager')  // 用于角色切换按钮高亮
 
   // ===== Getters =====
 
@@ -56,10 +57,19 @@ export const usePerformanceStore = defineStore('performance', () => {
   const pendingConfirmCount = computed(() => pendingIndicatorConfirms.value.length)
   const pendingCalibrateCount = computed(() => pendingCalibrations.value.length)
 
-  // 当前用户是否为管理者
+  // 待当前用户复核的列表（部门负责人）
+  const pendingReviews = computed(() =>
+    list.value.filter(p =>
+      p.current_node === 'reviewing' && p.reviewer_id === user.value.id
+    )
+  )
+  const pendingReviewCount = computed(() => pendingReviews.value.length)
+
+  // 当前用户是否为管理者（含部门负责人/复核人）
   const isManager = computed(() =>
     list.value.some(p =>
-      p.manager_evaluations.some(m => m.manager_id === user.value.id)
+      p.manager_evaluations.some(m => m.manager_id === user.value.id) ||
+      p.reviewer_id === user.value.id
     )
   )
 
@@ -90,12 +100,14 @@ export const usePerformanceStore = defineStore('performance', () => {
 
   // 切换角色
   function switchRole(role) {
+    selectedRole.value = role
     user.value.role = role
-    // 切换角色时自动换到对应的演示账号
     if (role === 'employee') {
       user.value = { ...users['U001'], role: 'employee' }
     } else if (role === 'manager') {
       user.value = { ...users['M001'], role: 'manager' }
+    } else if (role === 'reviewer') {
+      user.value = { ...users['M003'], role: 'manager' }
     } else if (role === 'admin') {
       user.value = { ...users['M001'], role: 'admin' }
     }
@@ -130,13 +142,34 @@ export const usePerformanceStore = defineStore('performance', () => {
     }
   }
 
+  // 部门负责人复核通过
+  function approveReview(employeeId, comment) {
+    const perf = list.value.find(p => p.employee.id === employeeId)
+    if (perf) {
+      perf.review_status = 'approved'
+      perf.review_comment = comment
+      perf.current_node = 'manager_evaluating'
+    }
+  }
+
+  // 部门负责人驳回复核
+  function rejectReview(employeeId, comment) {
+    const perf = list.value.find(p => p.employee.id === employeeId)
+    if (perf) {
+      perf.review_status = 'rejected'
+      perf.review_comment = comment
+      perf.current_node = 'goal_setting'
+      perf.indicator_confirm_status = 'rejected'
+    }
+  }
+
   // 直属主管确认指标（锁定）
   function confirmIndicators(employeeId) {
     const perf = list.value.find(p => p.employee.id === employeeId)
     if (perf) {
       perf.indicator_confirm_status = 'confirmed'
       perf.indicator_confirm_by = user.value.id
-      perf.current_node = 'manager_evaluating'
+      perf.current_node = 'reviewing'
     }
   }
 
@@ -251,16 +284,17 @@ export const usePerformanceStore = defineStore('performance', () => {
 
   return {
     // State
-    user, list, viewingEmployeeId,
+    user, list, viewingEmployeeId, selectedRole,
     // Getters
     myPerformance, viewingPerformance,
-    pendingEvaluations, pendingIndicatorConfirms, pendingCalibrations,
-    pendingEvalCount, pendingConfirmCount, pendingCalibrateCount,
+    pendingEvaluations, pendingIndicatorConfirms, pendingCalibrations, pendingReviews,
+    pendingEvalCount, pendingConfirmCount, pendingCalibrateCount, pendingReviewCount,
     isManager, isAdmin, currentStep, currentSteps,
     // Actions
     switchUser, switchRole,
     saveIndicators, submitIndicatorsForConfirm,
     confirmIndicators, rejectIndicators,
+    approveReview, rejectReview,
     submitSelfEval,
     saveManagerDraft, submitManagerScore,
     calcManagerTotal, calcFinalScore,
