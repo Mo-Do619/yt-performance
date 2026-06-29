@@ -86,10 +86,11 @@ function submitReject() {
 .btn-confirm, .btn-reject {
   flex: 1;
   height: 76rpx;
-  line-height: 76rpx;
+  display: flex;
+  align-items: center;
+  justify-content: center;
   border-radius: $radius-base;
   font-size: $font-base;
-  text-align: center;
   border: none;
 }
 

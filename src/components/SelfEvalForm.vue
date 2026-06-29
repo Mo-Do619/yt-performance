@@ -27,48 +27,67 @@
         />
         <text class="char-count">{{ localContent.length }}/1000</text>
       </view>
+
+      <!-- 自动计算的综合自评分数 -->
       <view class="edit-field">
-        <text class="field-label">综合自评分数</text>
-        <view class="score-input-wrap">
-          <input
-            v-model.number="localScore"
-            class="score-input"
-            type="number"
-            placeholder="0-100"
-            :max="100"
-            :min="0"
-          />
-          <text class="score-unit">分</text>
+        <text class="field-label">综合自评分数（自动计算）</text>
+        <view class="auto-score-card">
+          <text class="auto-score-num">{{ autoScore }}</text>
+          <text class="auto-score-unit">分</text>
         </view>
+        <text class="calc-detail">= {{ calcDetails }}</text>
+        <ScoringHints :hint="hintText" />
       </view>
-      <ScoringHints :hint="hintText" />
+
       <view class="form-actions">
-        <button class="btn-ghost" @click="$emit('save', { content: localContent, score: localScore })">保存草稿</button>
-        <button class="btn-primary" @click="$emit('submit', { content: localContent, score: localScore })">提交自评</button>
+        <button class="btn-primary" @click="handleSave">保存总结</button>
       </view>
     </view>
   </view>
 </template>
 
 <script setup>
-import { ref, watch } from 'vue'
+import { ref, computed, watch } from 'vue'
 import ScoringHints from './ScoringHints.vue'
 import { SCORING_HINTS } from '@/utils/constants.js'
 
 const props = defineProps({
   content: { type: String, default: '' },
   score: { type: Number, default: null },
-  editable: { type: Boolean, default: false }
+  editable: { type: Boolean, default: false },
+  indicators: { type: Array, default: () => [] }
 })
 
-defineEmits(['save', 'submit'])
+const emit = defineEmits(['save'])
 
 const localContent = ref('')
-const localScore = ref(null)
 const hintText = SCORING_HINTS.self
 
 watch(() => props.content, (v) => { localContent.value = v || '' }, { immediate: true })
-watch(() => props.score, (v) => { localScore.value = v }, { immediate: true })
+
+// 根据指标自评分数和权重自动计算综合分
+const autoScore = computed(() => {
+  const inds = props.indicators
+  if (!inds || inds.length === 0) return '--'
+  const total = inds.reduce((sum, ind) => {
+    return sum + (ind.self_score || 0) * (ind.weight || 0)
+  }, 0)
+  return total.toFixed(1)
+})
+
+const calcDetails = computed(() => {
+  const inds = props.indicators
+  if (!inds || inds.length === 0) return ''
+  return inds.map(ind => {
+    const s = ind.self_score || 0
+    const w = ((ind.weight || 0) * 100).toFixed(0)
+    return `${s}×${w}%`
+  }).join(' + ')
+})
+
+function handleSave() {
+  emit('save', { content: localContent.value })
+}
 </script>
 
 <style lang="scss" scoped>
@@ -133,28 +152,34 @@ watch(() => props.score, (v) => { localScore.value = v }, { immediate: true })
   margin-top: 6rpx;
 }
 
-.score-input-wrap {
+.auto-score-card {
   display: flex;
-  align-items: center;
-  border: 2rpx solid $border-color;
-  border-radius: $radius-sm;
-  padding: 16rpx 20rpx;
-  background: $bg-grey;
-  width: 200rpx;
+  align-items: baseline;
+  justify-content: center;
+  padding: 24rpx;
+  background: linear-gradient(135deg, rgba(41,121,255,0.06), rgba(41,121,255,0.02));
+  border-radius: $radius-base;
+  border: 2rpx solid #d6e4ff;
 }
 
-.score-input {
-  flex: 1;
-  font-size: 36rpx;
-  font-weight: 600;
-  color: $text-primary;
+.auto-score-num {
+  font-size: 64rpx;
+  font-weight: 700;
+  color: $color-primary;
+}
+
+.auto-score-unit {
+  font-size: $font-lg;
+  color: $color-primary;
+  margin-left: 8rpx;
+}
+
+.calc-detail {
+  display: block;
   text-align: center;
-}
-
-.score-unit {
-  font-size: $font-base;
-  color: $text-secondary;
-  margin-left: 10rpx;
+  font-size: $font-xs;
+  color: $text-hint;
+  margin-top: 10rpx;
 }
 
 .form-actions {
@@ -166,10 +191,11 @@ watch(() => props.score, (v) => { localScore.value = v }, { immediate: true })
 .btn-primary, .btn-ghost {
   flex: 1;
   height: 80rpx;
-  line-height: 80rpx;
+  display: flex;
+  align-items: center;
+  justify-content: center;
   border-radius: $radius-base;
   font-size: $font-base;
-  text-align: center;
   border: none;
 }
 

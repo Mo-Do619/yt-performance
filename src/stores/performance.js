@@ -91,13 +91,24 @@ export const usePerformanceStore = defineStore('performance', () => {
   // 切换角色
   function switchRole(role) {
     user.value.role = role
+    // 切换角色时自动换到对应的演示账号
+    if (role === 'employee') {
+      user.value = { ...users['U001'], role: 'employee' }
+    } else if (role === 'manager') {
+      user.value = { ...users['M001'], role: 'manager' }
+    } else if (role === 'admin') {
+      user.value = { ...users['M001'], role: 'admin' }
+    }
   }
 
   // 保存指标（草稿）
   function saveIndicators(indicators) {
     const perf = myPerformance.value
     if (perf) {
-      perf.indicators = indicators
+      perf.indicators = indicators.map(ind => ({
+        ...ind,
+        weight: ind.weight || (ind._weight_pct || 0) / 100
+      }))
     }
   }
 
@@ -107,6 +118,15 @@ export const usePerformanceStore = defineStore('performance', () => {
     if (perf) {
       perf.indicator_confirm_status = 'pending_confirm'
       perf.current_node = 'goal_confirming'
+      // 为新指标初始化上级的 indicator_scores
+      const newIndicatorIds = perf.indicators.map(i => i.id)
+      perf.manager_evaluations.forEach(m => {
+        const updated = {}
+        newIndicatorIds.forEach(id => {
+          updated[id] = m.indicator_scores?.[id] ?? null
+        })
+        m.indicator_scores = updated
+      })
     }
   }
 
@@ -116,7 +136,7 @@ export const usePerformanceStore = defineStore('performance', () => {
     if (perf) {
       perf.indicator_confirm_status = 'confirmed'
       perf.indicator_confirm_by = user.value.id
-      perf.current_node = 'self_evaluating'
+      perf.current_node = 'manager_evaluating'
     }
   }
 

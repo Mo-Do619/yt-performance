@@ -453,10 +453,11 @@ function handleSubmit() {
 .btn-primary, .btn-ghost {
   flex: 1;
   height: 80rpx;
-  line-height: 80rpx;
+  display: flex;
+  align-items: center;
+  justify-content: center;
   border-radius: $radius-base;
   font-size: $font-base;
-  text-align: center;
   border: none;
 }
 

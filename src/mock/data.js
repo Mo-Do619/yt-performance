@@ -30,12 +30,12 @@ export const performances = [
       { id: 'I002', name: '业务系统前后端联调', weight: 0.3, target: '推进完成内部业务系统的前后端联调工作', self_score: 88 },
       { id: 'I003', name: '团队协作与文档输出', weight: 0.3, target: '输出技术文档2篇，组织技术分享1次', self_score: 92 }
     ],
-    indicator_confirm_status: 'confirmed',
-    indicator_confirm_by: 'M001',
+    indicator_confirm_status: 'draft',
+    indicator_confirm_by: null,
     self_evaluation: {
-      content: '本季度按时完成了 GeekOS 核心模块的开发与编译工作，顺利推进了内部业务系统的前后端联调。在团队协作方面，输出技术文档2篇并组织了一次技术分享，超额完成目标。整体工作节奏紧凑，交付质量较高。',
-      score: 90,
-      submitted_at: '2026-09-15'
+      content: '',
+      score: null,
+      submitted_at: null
     },
     manager_evaluations: [
       {
@@ -44,10 +44,10 @@ export const performances = [
         role_label: '行政主管',
         is_primary_manager: true,
         weight: 0.6,
-        indicator_scores: { I001: 85, I002: 88, I003: 90 },
-        total_score: 87.4,
-        comment: '基础工作扎实，业务上手快，文档输出质量高。',
-        status: 'completed'
+        indicator_scores: { I001: null, I002: null, I003: null },
+        total_score: null,
+        comment: '',
+        status: 'pending'
       },
       {
         manager_id: 'M002',
@@ -61,7 +61,7 @@ export const performances = [
         status: 'pending'
       }
     ],
-    current_node: 'manager_evaluating',
+    current_node: 'goal_setting',
     performance_grade: null,
     final_score: null,
     deadlines: {

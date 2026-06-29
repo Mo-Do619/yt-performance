@@ -68,7 +68,9 @@ view, text, button, input, textarea {
   border-radius: 12rpx;
   padding: 20rpx 40rpx;
   font-size: 28rpx;
-  text-align: center;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 .btn-outline {
   background: #fff;
@@ -77,7 +79,9 @@ view, text, button, input, textarea {
   border-radius: 12rpx;
   padding: 20rpx 40rpx;
   font-size: 28rpx;
-  text-align: center;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 .btn-ghost {
   background: transparent;
@@ -85,6 +89,8 @@ view, text, button, input, textarea {
   border: none;
   padding: 20rpx 40rpx;
   font-size: 28rpx;
-  text-align: center;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 </style>

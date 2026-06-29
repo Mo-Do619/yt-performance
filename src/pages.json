@@ -56,12 +56,6 @@
         "text": "团队评估",
         "iconPath": "static/tabbar/team.png",
         "selectedIconPath": "static/tabbar/team-active.png"
-      },
-      {
-        "pagePath": "pages/admin/config",
-        "text": "管理",
-        "iconPath": "static/tabbar/admin.png",
-        "selectedIconPath": "static/tabbar/admin-active.png"
       }
     ]
   },

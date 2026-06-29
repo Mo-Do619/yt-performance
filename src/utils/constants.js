@@ -12,19 +12,17 @@ export const NODE_STATUS = {
 
 // ===== 流程状态映射 =====
 export const NODE_MAP = {
-  goal_setting: { label: '目标制定', color: '#2979ff', step: 0 },
+  goal_setting: { label: '目标与自评', color: '#2979ff', step: 0 },
   goal_confirming: { label: '指标确认中', color: '#ff9900', step: 1 },
-  self_evaluating: { label: '自评提交', color: '#ff9900', step: 2 },
-  manager_evaluating: { label: '多方评估中', color: '#722ed1', step: 3 },
-  calibrating: { label: '绩效校准', color: '#19be6b', step: 4 },
-  archived: { label: '结果归档', color: '#909399', step: 5 }
+  manager_evaluating: { label: '多方评估中', color: '#722ed1', step: 2 },
+  calibrating: { label: '绩效校准', color: '#19be6b', step: 3 },
+  archived: { label: '结果归档', color: '#909399', step: 4 }
 }
 
 // ===== 步骤条顺序 =====
 export const STEPS = [
-  { key: 'goal_setting', label: '目标制定' },
+  { key: 'goal_setting', label: '目标与自评' },
   { key: 'goal_confirming', label: '指标确认' },
-  { key: 'self_evaluating', label: '自评提交' },
   { key: 'manager_evaluating', label: '多方评估' },
   { key: 'calibrating', label: '绩效校准' },
   { key: 'archived', label: '结果归档' }

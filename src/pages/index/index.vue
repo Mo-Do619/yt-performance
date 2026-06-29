@@ -32,6 +32,18 @@
         >{{ r.label }}</button>
       </view>
     </view>
+
+    <!-- 管理员入口 -->
+    <view v-if="store.isAdmin" class="admin-entry card" @click="handleNavigate('admin')">
+      <view class="admin-entry-left">
+        <text class="admin-entry-icon">⚙</text>
+        <view>
+          <text class="admin-entry-title">管理配置</text>
+          <text class="admin-entry-desc">周期设置 · 时效配置 · 催办管理</text>
+        </view>
+      </view>
+      <text class="admin-entry-arrow">→</text>
+    </view>
   </view>
 </template>
 
@@ -63,7 +75,7 @@ function handleNavigate(page, tab) {
   } else if (page === 'team-eval') {
     uni.switchTab({ url: '/pages/performance/team-eval' })
   } else if (page === 'admin') {
-    uni.switchTab({ url: '/pages/admin/config' })
+    uni.navigateTo({ url: '/pages/admin/config' })
   }
 }
 </script>
@@ -107,5 +119,43 @@ function handleNavigate(page, tab) {
 .switcher-active {
   background: $color-primary;
   color: #fff;
+}
+
+.admin-entry {
+  margin: 20rpx 20rpx;
+  padding: 24rpx 30rpx;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background: linear-gradient(135deg, #fff, #f0f4ff);
+  border: 2rpx solid #d6e4ff;
+}
+
+.admin-entry-left {
+  display: flex;
+  align-items: center;
+}
+
+.admin-entry-icon {
+  font-size: 44rpx;
+  margin-right: 20rpx;
+}
+
+.admin-entry-title {
+  font-size: $font-base;
+  font-weight: 600;
+  color: $text-primary;
+  display: block;
+}
+
+.admin-entry-desc {
+  font-size: $font-xs;
+  color: $text-hint;
+  margin-top: 4rpx;
+}
+
+.admin-entry-arrow {
+  font-size: 32rpx;
+  color: $color-primary;
 }
 </style>
