@@ -71,7 +71,6 @@
     "vueVersion" : "3",
     "h5": {
         "router": {
-            "base": "/yt-performance/",
             "mode": "hash"
         }
     }
