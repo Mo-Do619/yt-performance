@@ -4,30 +4,39 @@
 export const NODE_STATUS = {
   GOAL_SETTING: 'goal_setting',
   GOAL_CONFIRMING: 'goal_confirming',
-  REVIEWING: 'reviewing',
+  INDICATOR_REVIEWING: 'indicator_reviewing',
+  SELF_EVALUATING: 'self_evaluating',
   MANAGER_EVALUATING: 'manager_evaluating',
   CALIBRATING: 'calibrating',
+  HR_REVIEWING: 'hr_reviewing',
+  RESULT_VISIBLE: 'result_visible',
   ARCHIVED: 'archived'
 }
 
 // ===== 流程状态映射 =====
 export const NODE_MAP = {
-  goal_setting: { label: '目标与自评', color: '#2979ff', step: 0 },
-  goal_confirming: { label: '指标确认中', color: '#ff9900', step: 1 },
-  reviewing: { label: '复核中', color: '#ff6b00', step: 2 },
-  manager_evaluating: { label: '多方评估中', color: '#722ed1', step: 3 },
-  calibrating: { label: '绩效校准', color: '#19be6b', step: 4 },
-  archived: { label: '结果归档', color: '#909399', step: 5 }
+  goal_setting: { label: '指标制定', color: '#2979ff', step: 0 },
+  goal_confirming: { label: '指标确认', color: '#ff9900', step: 1 },
+  indicator_reviewing: { label: '指标复核', color: '#ff6b00', step: 2 },
+  self_evaluating: { label: '数据填报', color: '#19be6b', step: 3 },
+  manager_evaluating: { label: '直属领导评分', color: '#722ed1', step: 4 },
+  calibrating: { label: '绩效校准', color: '#ff6b00', step: 5 },
+  hr_reviewing: { label: 'HR复核', color: '#ff9900', step: 6 },
+  result_visible: { label: '结果查看', color: '#19be6b', step: 7 },
+  archived: { label: '归档', color: '#909399', step: 8 }
 }
 
 // ===== 步骤条顺序 =====
 export const STEPS = [
-  { key: 'goal_setting', label: '目标与自评' },
+  { key: 'goal_setting', label: '指标制定' },
   { key: 'goal_confirming', label: '指标确认' },
-  { key: 'reviewing', label: '复核' },
-  { key: 'manager_evaluating', label: '多方评估' },
+  { key: 'indicator_reviewing', label: '指标复核' },
+  { key: 'self_evaluating', label: '数据填报' },
+  { key: 'manager_evaluating', label: '直属领导评分' },
   { key: 'calibrating', label: '绩效校准' },
-  { key: 'archived', label: '结果归档' }
+  { key: 'hr_reviewing', label: 'HR复核' },
+  { key: 'result_visible', label: '结果查看' },
+  { key: 'archived', label: '归档' }
 ]
 
 // ===== 指标确认状态 =====

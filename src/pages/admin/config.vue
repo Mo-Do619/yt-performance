@@ -60,25 +60,29 @@
       <view class="stats-row">
         <view class="stat-item">
           <text class="stat-num">{{ adminStore.overdueStats.self_evaluating }}</text>
-          <text class="stat-label">自评超时</text>
+          <text class="stat-label">填报超时</text>
         </view>
         <view class="stat-item">
           <text class="stat-num">{{ adminStore.overdueStats.manager_evaluating }}</text>
-          <text class="stat-label">评估超时</text>
+          <text class="stat-label">评分超时</text>
         </view>
         <view class="stat-item">
           <text class="stat-num">{{ adminStore.overdueStats.calibrating }}</text>
           <text class="stat-label">校准超时</text>
         </view>
+        <view class="stat-item">
+          <text class="stat-num">{{ adminStore.overdueStats.hr_reviewing }}</text>
+          <text class="stat-label">HR复核超时</text>
+        </view>
       </view>
       <view class="reminder-actions">
         <ReminderButton
-          label="一键催办自评"
+          label="一键催办填报"
           stage="self_evaluating"
           @remind="handleRemind"
         />
         <ReminderButton
-          label="一键催办评估"
+          label="一键催办评分"
           stage="manager_evaluating"
           @remind="handleRemind"
         />
@@ -101,7 +105,7 @@ const gradeMap = GRADE_MAP.map((g, i) => ({
 
 function handleRemind(stage) {
   adminStore.sendReminder(stage)
-  uni.showToast({ title: `已向${stage}阶段超时人员发送催办`, icon: 'success' })
+  uni.showToast({ title: '催办已发送', icon: 'success' })
 }
 </script>
 

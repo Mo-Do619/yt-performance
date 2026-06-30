@@ -199,11 +199,13 @@ const gradeColor = computed(() => gradeInfo.value?.color || '#909399')
   font-weight: 700;
   color: $text-primary;
   margin-right: 12rpx;
+  line-height: 1;
 }
 
 .total-grade {
-  font-size: $font-base;
-  font-weight: 600;
+  font-size: 36rpx;
+  font-weight: 700;
+  line-height: 1;
 }
 
 .eval-comment {

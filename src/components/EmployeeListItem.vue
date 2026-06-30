@@ -9,6 +9,7 @@
     </view>
     <view class="item-right">
       <view class="item-tags">
+        <text v-if="performance.calibration_status === 'rejected'" class="tag tag-rejected">已退回</text>
         <text class="tag" :style="{ background: nodeColor + '1a', color: nodeColor }">
           {{ nodeLabel }}
         </text>
@@ -99,6 +100,11 @@ const deadline = computed(() => {
   font-size: $font-xs;
   padding: 4rpx 14rpx;
   border-radius: $radius-round;
+}
+
+.tag-rejected {
+  background: #fff3f0;
+  color: $color-danger;
 }
 
 .item-arrow {

@@ -35,13 +35,23 @@
           <view v-if="performance?.self_evaluation?.content" class="self-eval-summary">
             <text class="section-label">员工自评总结</text>
             <text class="self-eval-text">{{ performance.self_evaluation.content }}</text>
-            <text class="self-eval-score">综合自评分: {{ performance.self_evaluation.score }} 分</text>
+            <view class="self-eval-score-box">
+              <text class="self-eval-score-label">综合自评分</text>
+              <text class="self-eval-score-num">{{ performance.self_evaluation.score ?? '--' }}</text>
+              <text class="self-eval-score-unit">分</text>
+            </view>
           </view>
         </view>
 
         <!-- 打分区域 -->
         <view class="scoring-section">
           <text class="section-label">{{ scoringLabel }}</text>
+
+          <!-- 校准退回提示 -->
+          <view v-if="performance?.calibration_status === 'rejected'" class="reject-notice">
+            <text class="reject-notice-title">校准已退回，请修改后重新提交</text>
+            <text class="reject-notice-reason">{{ performance?.calibration_comment }}</text>
+          </view>
 
           <view v-for="ind in indicators" :key="ind.id" class="scoring-row">
             <text class="scoring-ind-name">{{ ind.name }}</text>
@@ -194,17 +204,20 @@ function handleSubmit() {
   background: rgba(0,0,0,0.4);
   z-index: 1000;
   display: flex;
-  justify-content: flex-end;
+  justify-content: center;
+  align-items: center;
+  padding: 40rpx;
 }
 
 .scoring-drawer {
-  width: 85vw;
-  max-width: 600rpx;
-  height: 100vh;
+  width: 100%;
+  max-height: 85vh;
+  border-radius: $radius-lg;
   background: $bg-color;
   display: flex;
   flex-direction: column;
   box-shadow: $shadow-drawer;
+  overflow: hidden;
 }
 
 .drawer-header {
@@ -264,6 +277,28 @@ function handleSubmit() {
   border-bottom: 1px solid $border-light;
 }
 
+.reject-notice {
+  background: #fff3f0;
+  border-left: 6rpx solid $color-danger;
+  border-radius: $radius-sm;
+  padding: 20rpx 24rpx;
+  margin-bottom: 24rpx;
+}
+
+.reject-notice-title {
+  font-size: $font-sm;
+  font-weight: 600;
+  color: $color-danger;
+  display: block;
+  margin-bottom: 8rpx;
+}
+
+.reject-notice-reason {
+  font-size: $font-sm;
+  color: $text-secondary;
+  line-height: 1.5;
+}
+
 .indicator-readonly {
   background: $bg-grey;
   border-radius: $radius-sm;
@@ -321,15 +356,35 @@ function handleSubmit() {
 .self-eval-text {
   font-size: $font-sm;
   color: $text-secondary;
-  line-height: 1.5;
+  line-height: 1.6;
   white-space: pre-wrap;
 }
 
-.self-eval-score {
+.self-eval-score-box {
+  margin-top: 24rpx;
+  padding: 20rpx 24rpx;
+  background: linear-gradient(135deg, rgba(41,121,255,0.06), rgba(41,121,255,0.02));
+  border-radius: $radius-base;
+  display: flex;
+  align-items: baseline;
+  justify-content: center;
+  gap: 12rpx;
+}
+
+.self-eval-score-label {
   font-size: $font-sm;
-  font-weight: 600;
+  color: $text-hint;
+}
+
+.self-eval-score-num {
+  font-size: 48rpx;
+  font-weight: 700;
   color: $color-primary;
-  margin-top: 10rpx;
+}
+
+.self-eval-score-unit {
+  font-size: $font-sm;
+  color: $text-hint;
 }
 
 .scoring-row {

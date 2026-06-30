@@ -15,8 +15,9 @@
       :indicatorConfirmStatus="myPerformance?.indicator_confirm_status || ''"
       :pendingEvalCount="store.pendingEvalCount"
       :pendingConfirmCount="store.pendingConfirmCount"
-      :pendingReviewCount="store.pendingReviewCount"
+      :pendingIndicatorReviewCount="store.pendingIndicatorReviewCount"
       :pendingCalibrateCount="store.pendingCalibrateCount"
+      :pendingHRReviewCount="store.pendingHRReviewCount"
       @navigate="handleNavigate"
     />
 
@@ -29,7 +30,7 @@
           :key="r.value"
           class="switcher-btn"
           :class="{ 'switcher-active': store.selectedRole === r.value }"
-          @click="store.switchRole(r.value)"
+          @tap="store.switchRole(r.value)"
         >{{ r.label }}</view>
       </view>
     </view>
@@ -68,6 +69,7 @@ const roles = [
   { value: 'employee', label: '员工' },
   { value: 'manager', label: '主管' },
   { value: 'reviewer', label: '部门负责人' },
+  { value: 'hr', label: 'HR' },
   { value: 'admin', label: '管理员' }
 ]
 

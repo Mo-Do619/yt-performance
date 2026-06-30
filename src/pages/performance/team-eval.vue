@@ -1,16 +1,14 @@
 <template>
   <view class="team-eval-page">
-    <!-- 无权限 -->
     <view v-if="!store.isManager && !store.isAdmin" class="no-permission">
       <EmptyState
         icon="🔒"
         title="无权访问"
-        desc="仅主管和管理员可以查看团队评估"
+        desc="仅主管、部门负责人、HR和管理员可以查看团队评估"
       />
     </view>
 
     <template v-else>
-    <!-- Tab 切换 -->
     <view class="tab-bar">
       <view
         v-for="tab in tabs"
@@ -24,21 +22,7 @@
       </view>
     </view>
 
-    <!-- 待打分 Tab -->
-    <view v-if="activeTab === 'eval'" class="tab-content">
-      <view v-if="store.pendingEvalCount > 0">
-        <EmployeeListItem
-          v-for="perf in store.pendingEvaluations"
-          :key="perf.performance_id"
-          :performance="perf"
-          tab="eval"
-          @click="openDrawer(perf, 'eval')"
-        />
-      </view>
-      <EmptyState v-else icon="✅" title="暂无待打分员工" desc="所有下属的评估已完成" />
-    </view>
-
-    <!-- 待确认指标 Tab -->
+    <!-- Tab 1: 待确认指标（直属领导） -->
     <view v-if="activeTab === 'confirm'" class="tab-content">
       <view v-if="store.pendingConfirmCount > 0">
         <view
@@ -46,17 +30,31 @@
           :key="perf.performance_id"
           class="card confirm-card"
         >
-          <EmployeeListItem
-            :performance="perf"
-            tab="confirm"
-            @click="viewIndicators(perf)"
-          />
+          <EmployeeListItem :performance="perf" tab="confirm" />
+
+          <!-- 指标明细 -->
+          <view class="indicator-detail">
+            <text class="detail-label">指标明细</text>
+            <view v-for="ind in perf.indicators" :key="ind.id" class="detail-item">
+              <view class="detail-header">
+                <text class="detail-name">{{ ind.name }}</text>
+                <text class="detail-weight">权重 {{ (ind.weight * 100).toFixed(0) }}%</text>
+              </view>
+              <view class="detail-row">
+                <text class="detail-key">目标</text>
+                <text class="detail-val">{{ ind.target }}</text>
+              </view>
+              <view class="detail-row">
+                <text class="detail-key">自评</text>
+                <text class="detail-score">{{ ind.self_score ?? '--' }} 分</text>
+              </view>
+            </view>
+          </view>
+
           <view class="confirm-actions-row">
             <button class="btn-reject-sm" @click="handleReject(perf)">驳回</button>
             <button class="btn-confirm-sm" @click="handleConfirm(perf)">确认指标</button>
           </view>
-
-          <!-- 驳回原因 -->
           <view v-if="rejectTargetId === perf.performance_id" class="reject-input">
             <textarea v-model="rejectReason" placeholder="请输入驳回原因..." class="reject-textarea" />
             <view class="reject-btns">
@@ -66,22 +64,20 @@
           </view>
         </view>
       </view>
-      <EmptyState v-else icon="📌" title="暂无待确认指标" desc="所有下属的指标已确认" />
+      <EmptyState v-else icon="📌" title="暂无待确认指标" desc="员工的指标已全部确认" />
     </view>
 
-    <!-- 待复核 Tab -->
-    <view v-if="activeTab === 'review'" class="tab-content">
-      <view v-if="store.pendingReviewCount > 0">
+    <!-- Tab 2: 待复核指标（部门负责人） -->
+    <view v-if="activeTab === 'indicator_review'" class="tab-content">
+      <view v-if="store.pendingIndicatorReviewCount > 0">
         <view
-          v-for="perf in store.pendingReviews"
+          v-for="perf in store.pendingIndicatorReviews"
           :key="perf.performance_id"
           class="card review-card"
         >
           <EmployeeListItem :performance="perf" tab="review" />
-
-          <!-- 指标明细 -->
           <view class="review-indicators">
-            <text class="review-section-label">指标完成情况</text>
+            <text class="review-section-label">指标明细</text>
             <view v-for="ind in perf.indicators" :key="ind.id" class="review-ind-item">
               <view class="review-ind-header">
                 <text class="review-ind-name">{{ ind.name }}</text>
@@ -97,42 +93,116 @@
               </view>
             </view>
           </view>
-
-          <!-- 自评总结 -->
-          <view class="review-content">
-            <text class="review-section-label">员工自评总结</text>
-            <text class="review-self-text">{{ perf.self_evaluation?.content || '暂无' }}</text>
-            <text class="review-self-score">综合自评: {{ perf.self_evaluation?.score ?? '--' }} 分</text>
-          </view>
           <view class="review-comment-input">
             <text class="review-input-label">复核意见</text>
             <textarea
-              v-model="reviewComments[perf.performance_id]"
+              v-model="indicatorReviewComments[perf.performance_id]"
               class="review-textarea"
-              placeholder="请对员工自评内容进行复核，确认绩效完成情况..."
+              placeholder="请对指标设定进行复核..."
             />
           </view>
           <view class="review-actions">
-            <button class="btn-reject-sm" @click="handleReviewReject(perf)">驳回复核</button>
-            <button class="btn-confirm-sm" @click="handleReviewApprove(perf)">复核通过</button>
+            <button class="btn-reject-sm" @click="handleIndicatorReviewReject(perf)">驳回复核</button>
+            <button class="btn-confirm-sm" @click="handleIndicatorReviewApprove(perf)">复核通过</button>
           </view>
         </view>
       </view>
-      <EmptyState v-else icon="🔍" title="暂无待复核" desc="指标确认通过后，待复核的绩效将在此显示" />
+      <EmptyState v-else icon="🔍" title="暂无待复核指标" desc="直属领导确认后，待复核的指标将在此显示" />
     </view>
 
-    <!-- 待校准 Tab -->
-    <view v-if="activeTab === 'calibrate'" class="tab-content">
-      <view v-if="store.pendingCalibrateCount > 0">
+    <!-- Tab 3: 待打分（直属领导） -->
+    <view v-if="activeTab === 'eval'" class="tab-content">
+      <view v-if="store.pendingEvalCount > 0">
         <EmployeeListItem
-          v-for="perf in store.pendingCalibrations"
+          v-for="perf in store.pendingEvaluations"
           :key="perf.performance_id"
           :performance="perf"
-          tab="calibrate"
-          @click="openDrawer(perf, 'calibrate')"
+          tab="eval"
+          @click="openDrawer(perf, 'eval')"
         />
       </view>
-      <EmptyState v-else icon="🎯" title="暂无待校准员工" desc="评估完成后的绩效将在此校准" />
+      <EmptyState v-else icon="✅" title="暂无待打分员工" desc="所有下属的评估已完成" />
+    </view>
+
+    <!-- Tab 4: 待校准（部门负责人） -->
+    <view v-if="activeTab === 'calibrate'" class="tab-content">
+      <view v-if="store.pendingCalibrateCount > 0">
+        <view
+          v-for="perf in store.pendingCalibrations"
+          :key="perf.performance_id"
+          class="card review-card"
+        >
+          <EmployeeListItem :performance="perf" tab="calibrate" />
+
+          <view class="review-content">
+            <text class="review-section-label">评分汇总</text>
+            <view v-for="evalItem in completedEvals(perf)" :key="evalItem.manager_id" class="eval-summary">
+              <text class="eval-mgr-name">{{ evalItem.manager_name }}</text>
+              <text class="eval-mgr-score">{{ evalItem.total_score }} 分</text>
+              <text class="eval-mgr-grade" :style="{ color: getGrade(evalItem.total_score)?.color }">
+                {{ getGrade(evalItem.total_score)?.label }}
+              </text>
+            </view>
+            <text class="review-final-score">最终得分: {{ perf.final_score }} · {{ getGrade(perf.final_score)?.label }}</text>
+            <text class="review-comment-text" v-if="primaryEvalComment(perf)">评语: {{ primaryEvalComment(perf) }}</text>
+          </view>
+
+          <view class="review-comment-input">
+            <text class="review-input-label">退回理由</text>
+            <textarea
+              v-model="calibrateRejectReasons[perf.performance_id]"
+              class="review-textarea"
+              placeholder="请填写退回重评的理由..."
+            />
+          </view>
+
+          <view class="calibrate-actions">
+            <button class="btn-reject-sm" @click="handleCalibrationReject(perf)">退回重评</button>
+            <button class="btn-primary-sm" @click="openDrawer(perf, 'calibrate')">进入校准</button>
+          </view>
+        </view>
+      </view>
+      <EmptyState v-else icon="🎯" title="暂无待校准" desc="直属领导评分完成后，待校准的绩效将在此显示" />
+    </view>
+
+    <!-- Tab 5: 待HR复核 -->
+    <view v-if="activeTab === 'hrreview'" class="tab-content">
+      <view v-if="store.pendingHRReviewCount > 0">
+        <view
+          v-for="perf in store.pendingHRReviews"
+          :key="perf.performance_id"
+          class="card review-card"
+        >
+          <EmployeeListItem :performance="perf" tab="review" />
+
+          <view class="review-content">
+            <text class="review-section-label">绩效汇总</text>
+            <view v-for="evalItem in completedEvals(perf)" :key="evalItem.manager_id" class="eval-summary">
+              <text class="eval-mgr-name">{{ evalItem.manager_name }}</text>
+              <text class="eval-mgr-score">{{ evalItem.total_score }} 分</text>
+              <text class="eval-mgr-grade" :style="{ color: getGrade(evalItem.total_score)?.color }">
+                {{ getGrade(evalItem.total_score)?.label }}
+              </text>
+            </view>
+            <text class="review-final-score">最终得分: {{ perf.final_score }} · {{ getGrade(perf.final_score)?.label }}</text>
+            <text class="review-comment-text" v-if="perf.calibration_comment">校准意见: {{ perf.calibration_comment }}</text>
+          </view>
+
+          <view class="review-comment-input">
+            <text class="review-input-label">HR复核意见</text>
+            <textarea
+              v-model="hrReviewComments[perf.performance_id]"
+              class="review-textarea"
+              placeholder="请对绩效结果进行复核..."
+            />
+          </view>
+          <view class="review-actions">
+            <button class="btn-reject-sm" @click="handleHRReject(perf)">驳回复核</button>
+            <button class="btn-confirm-sm" @click="handleHRApprove(perf)">复核通过</button>
+          </view>
+        </view>
+      </view>
+      <EmptyState v-else icon="📋" title="暂无待HR复核" desc="部门负责人校准完成后，待复核的绩效将在此显示" />
     </view>
 
     <!-- 打分/校准抽屉 -->
@@ -156,6 +226,7 @@ import { usePerformanceStore } from '@/stores/performance.js'
 import EmployeeListItem from '@/components/EmployeeListItem.vue'
 import ScoringDrawer from '@/components/ScoringDrawer.vue'
 import EmptyState from '@/components/EmptyState.vue'
+import { getGrade } from '@/utils/constants.js'
 
 const store = usePerformanceStore()
 
@@ -165,21 +236,22 @@ const drawerPerformance = ref(null)
 const drawerMode = ref('eval')
 const rejectTargetId = ref('')
 const rejectReason = ref('')
-const reviewComments = ref({})
+const indicatorReviewComments = ref({})
+const calibrateRejectReasons = ref({})
+const hrReviewComments = ref({})
 
-// switchTab 不会重新 mount，监听事件放在 module 层级
 uni.$on('teamEvalTab', (tab) => {
   if (tab) activeTab.value = tab
 })
 
 const tabs = computed(() => [
-  { key: 'eval', label: '待打分', count: store.pendingEvalCount },
   { key: 'confirm', label: '待确认指标', count: store.pendingConfirmCount },
-  { key: 'review', label: '待复核', count: store.pendingReviewCount },
-  { key: 'calibrate', label: '校准中', count: store.pendingCalibrateCount }
+  { key: 'indicator_review', label: '待复核指标', count: store.pendingIndicatorReviewCount },
+  { key: 'eval', label: '待打分', count: store.pendingEvalCount },
+  { key: 'calibrate', label: '待校准', count: store.pendingCalibrateCount },
+  { key: 'hrreview', label: '待HR复核', count: store.pendingHRReviewCount }
 ])
 
-// 当前要评估的记录中，该主管已有的打分数据
 const currentEvalScores = computed(() => {
   if (!drawerPerformance.value) return {}
   const evalItem = drawerPerformance.value.manager_evaluations.find(
@@ -196,6 +268,15 @@ const currentEvalComment = computed(() => {
   return evalItem?.comment || ''
 })
 
+function completedEvals(perf) {
+  return perf.manager_evaluations.filter(m => m.status === 'completed')
+}
+
+function primaryEvalComment(perf) {
+  const primary = perf.manager_evaluations.find(m => m.is_primary_manager)
+  return primary?.comment || ''
+}
+
 function openDrawer(perf, mode) {
   drawerPerformance.value = perf
   drawerMode.value = mode
@@ -210,23 +291,23 @@ function handleSaveScore({ scores, comment }) {
 
 function handleSubmitScore({ scores, comment, grade }) {
   if (drawerMode.value === 'calibrate') {
-    const evalUpdates = store.pendingCalibrations
-      .find(p => p.performance_id === drawerPerformance.value.performance_id)
-      ?.manager_evaluations.map(m => ({
-        manager_id: m.manager_id,
-        indicator_scores: scores
-      })) || []
-    store.calibrateScore(drawerPerformance.value.employee.id, evalUpdates)
+    const evalUpdates = drawerPerformance.value.manager_evaluations.map(m => ({
+      manager_id: m.manager_id,
+      indicator_scores: scores
+    }))
+    store.submitCalibration(drawerPerformance.value.employee.id, evalUpdates, comment)
+    uni.showToast({ title: '校准已提交', icon: 'success' })
   } else {
     store.submitManagerScore(drawerPerformance.value.employee.id, scores, comment)
+    uni.showToast({ title: '评分已提交', icon: 'success' })
   }
-  uni.showToast({ title: '评估已提交', icon: 'success' })
   drawerVisible.value = false
 }
 
+// Phase 1: 指标确认
 function handleConfirm(perf) {
   store.confirmIndicators(perf.employee.id)
-  uni.showToast({ title: '指标已确认，已锁定', icon: 'success' })
+  uni.showToast({ title: '指标已确认', icon: 'success' })
 }
 
 function handleReject(perf) {
@@ -241,24 +322,49 @@ function submitReject(perf) {
   rejectReason.value = ''
 }
 
-function viewIndicators(perf) {
-  // 查看指标详情，可在这里扩展跳转到指标详情页
+// Phase 1: 指标复核（部门负责人）
+function handleIndicatorReviewApprove(perf) {
+  const comment = indicatorReviewComments.value[perf.performance_id] || ''
+  store.approveIndicatorReview(perf.employee.id, comment)
+  uni.showToast({ title: '复核通过', icon: 'success' })
 }
 
-function handleReviewApprove(perf) {
-  const comment = reviewComments.value[perf.performance_id] || ''
-  store.approveReview(perf.employee.id, comment)
-  uni.showToast({ title: '复核已通过', icon: 'success' })
-}
-
-function handleReviewReject(perf) {
-  const comment = reviewComments.value[perf.performance_id] || ''
+function handleIndicatorReviewReject(perf) {
+  const comment = indicatorReviewComments.value[perf.performance_id] || ''
   if (!comment) {
     uni.showToast({ title: '请填写复核意见', icon: 'none' })
     return
   }
-  store.rejectReview(perf.employee.id, comment)
-  uni.showToast({ title: '复核已驳回', icon: 'none' })
+  store.rejectIndicatorReview(perf.employee.id, comment)
+  uni.showToast({ title: '指标已驳回', icon: 'none' })
+}
+
+// Phase 3: 校准
+function handleCalibrationReject(perf) {
+  const reason = calibrateRejectReasons.value[perf.performance_id] || ''
+  if (!reason) {
+    uni.showToast({ title: '请填写退回理由', icon: 'none' })
+    return
+  }
+  store.rejectCalibration(perf.employee.id, reason)
+  uni.showToast({ title: '已退回', icon: 'none' })
+}
+
+// Phase 3: HR复核
+function handleHRApprove(perf) {
+  const comment = hrReviewComments.value[perf.performance_id] || ''
+  store.approveHRReview(perf.employee.id, comment)
+  uni.showToast({ title: '复核通过', icon: 'success' })
+}
+
+function handleHRReject(perf) {
+  const comment = hrReviewComments.value[perf.performance_id] || ''
+  if (!comment) {
+    uni.showToast({ title: '请填写复核意见', icon: 'none' })
+    return
+  }
+  store.rejectHRReview(perf.employee.id, comment)
+  uni.showToast({ title: '已驳回', icon: 'none' })
 }
 </script>
 
@@ -273,14 +379,16 @@ function handleReviewReject(perf) {
   background: #fff;
   padding: 0 20rpx;
   border-bottom: 1px solid $border-light;
+  overflow-x: auto;
 }
 
 .tab-item {
   flex: 1;
+  min-width: 120rpx;
   display: flex;
   align-items: center;
   justify-content: center;
-  padding: 24rpx 0;
+  padding: 24rpx 8rpx;
   position: relative;
 }
 
@@ -289,7 +397,7 @@ function handleReviewReject(perf) {
 }
 
 .tab-text {
-  font-size: $font-base;
+  font-size: 24rpx;
   color: $text-secondary;
 }
 
@@ -303,8 +411,8 @@ function handleReviewReject(perf) {
   color: #fff;
   background: $color-danger;
   border-radius: $radius-round;
-  padding: 2rpx 12rpx;
-  margin-left: 8rpx;
+  padding: 2rpx 10rpx;
+  margin-left: 6rpx;
 }
 
 .tab-content {
@@ -325,7 +433,73 @@ function handleReviewReject(perf) {
   border-top: 1px solid $border-light;
 }
 
-.btn-confirm-sm, .btn-reject-sm, .btn-ghost-sm, .btn-danger-sm {
+.indicator-detail {
+  padding: 16rpx 0;
+  border-top: 1px solid $border-light;
+  border-bottom: 1px solid $border-light;
+  margin: 16rpx 0;
+}
+
+.detail-label {
+  font-size: $font-sm;
+  font-weight: 600;
+  color: $text-primary;
+  display: block;
+  margin-bottom: 12rpx;
+}
+
+.detail-item {
+  background: $bg-grey;
+  border-radius: $radius-sm;
+  padding: 14rpx 16rpx;
+  margin-bottom: 10rpx;
+}
+
+.detail-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 8rpx;
+}
+
+.detail-name {
+  font-size: $font-sm;
+  font-weight: 500;
+  color: $text-primary;
+}
+
+.detail-weight {
+  font-size: $font-xs;
+  color: $color-primary;
+  background: rgba(41,121,255,0.1);
+  padding: 2rpx 10rpx;
+  border-radius: $radius-sm;
+}
+
+.detail-row {
+  display: flex;
+  margin-top: 4rpx;
+}
+
+.detail-key {
+  width: 80rpx;
+  font-size: $font-xs;
+  color: $text-hint;
+}
+
+.detail-val {
+  font-size: $font-xs;
+  color: $text-secondary;
+  flex: 1;
+}
+
+.detail-score {
+  font-size: $font-sm;
+  font-weight: 600;
+  color: $color-primary;
+}
+
+.btn-confirm-sm, .btn-reject-sm, .btn-ghost-sm, .btn-danger-sm, .btn-primary-sm {
   padding: 12rpx 28rpx;
   border-radius: $radius-sm;
   font-size: $font-sm;
@@ -336,6 +510,7 @@ function handleReviewReject(perf) {
 .btn-reject-sm { background: $bg-grey; color: $color-danger; }
 .btn-ghost-sm { background: $bg-grey; color: $text-secondary; }
 .btn-danger-sm { background: $color-danger; color: #fff; }
+.btn-primary-sm { background: $color-primary; color: #fff; }
 
 .reject-input {
   margin-top: 16rpx;
@@ -435,17 +610,44 @@ function handleReviewReject(perf) {
   color: $color-primary;
 }
 
-.review-self-text {
-  font-size: $font-sm;
-  color: $text-secondary;
-  line-height: 1.5;
+.eval-summary {
+  display: flex;
+  align-items: center;
+  padding: 8rpx 0;
 }
 
-.review-self-score {
+.eval-mgr-name {
   font-size: $font-sm;
-  color: $color-primary;
+  color: $text-primary;
+  flex: 1;
+}
+
+.eval-mgr-score {
+  font-size: $font-base;
   font-weight: 600;
+  color: $color-primary;
+  margin-right: 12rpx;
+}
+
+.eval-mgr-grade {
+  font-size: $font-sm;
+  font-weight: 600;
+}
+
+.review-final-score {
+  font-size: $font-base;
+  font-weight: 700;
+  color: $text-primary;
+  margin-top: 10rpx;
+  display: block;
+}
+
+.review-comment-text {
+  font-size: $font-xs;
+  color: $text-secondary;
   margin-top: 8rpx;
+  display: block;
+  font-style: italic;
 }
 
 .review-comment-input {
@@ -474,5 +676,14 @@ function handleReviewReject(perf) {
   gap: 16rpx;
   justify-content: flex-end;
   margin-top: 16rpx;
+}
+
+.calibrate-actions {
+  display: flex;
+  gap: 16rpx;
+  justify-content: flex-end;
+  margin-top: 16rpx;
+  padding-top: 16rpx;
+  border-top: 1px solid $border-light;
 }
 </style>

@@ -4,23 +4,7 @@
       <text>{{ title }}</text>
     </view>
 
-    <!-- 员工：指标/自评待办 -->
-    <view
-      v-if="showSelfEvalTodo"
-      class="todo-card card"
-      @click="$emit('navigate', 'my-eval')"
-    >
-      <view class="todo-left">
-        <text class="todo-icon">📝</text>
-        <view class="todo-info">
-          <text class="todo-title">{{ selfEvalTodoText }}</text>
-          <text class="todo-desc">点击前往填写</text>
-        </view>
-      </view>
-      <text class="todo-arrow">→</text>
-    </view>
-
-    <!-- 指标确认待办（仅员工） -->
+    <!-- 员工：指标填报待办 -->
     <view
       v-if="showIndicatorTodo"
       class="todo-card card"
@@ -36,7 +20,23 @@
       <text class="todo-arrow">→</text>
     </view>
 
-    <!-- 主管：待确认指标 -->
+    <!-- 员工：数据填报待办 -->
+    <view
+      v-if="showDataEntryTodo"
+      class="todo-card card"
+      @click="$emit('navigate', 'my-eval')"
+    >
+      <view class="todo-left">
+        <text class="todo-icon">📝</text>
+        <view class="todo-info">
+          <text class="todo-title">请完成数据填报与自评</text>
+          <text class="todo-desc">填写月度绩效完成情况并提交自评</text>
+        </view>
+      </view>
+      <text class="todo-arrow">→</text>
+    </view>
+
+    <!-- 直属领导：待确认指标 -->
     <view
       v-if="showConfirmTodo && pendingConfirmCount > 0"
       class="todo-card card todo-important"
@@ -46,13 +46,29 @@
         <text class="todo-icon">🔒</text>
         <view class="todo-info">
           <text class="todo-title">您有 {{ pendingConfirmCount }} 份指标待确认</text>
-          <text class="todo-desc">作为直属主管，请确认下属指标</text>
+          <text class="todo-desc">作为直属领导，请确认下属的绩效指标</text>
         </view>
       </view>
       <text class="todo-arrow">→</text>
     </view>
 
-    <!-- 主管：待打分 -->
+    <!-- 部门负责人：待复核指标 -->
+    <view
+      v-if="showIndicatorReviewTodo && pendingIndicatorReviewCount > 0"
+      class="todo-card card todo-important"
+      @click="$emit('navigate', 'team-eval', 'indicator_review')"
+    >
+      <view class="todo-left">
+        <text class="todo-icon">🔍</text>
+        <view class="todo-info">
+          <text class="todo-title">您有 {{ pendingIndicatorReviewCount }} 份指标待复核</text>
+          <text class="todo-desc">直属领导已确认，请复核指标设定</text>
+        </view>
+      </view>
+      <text class="todo-arrow">→</text>
+    </view>
+
+    <!-- 直属领导：待打分 -->
     <view
       v-if="showEvalTodo && pendingEvalCount > 0"
       class="todo-card card todo-important"
@@ -61,40 +77,40 @@
       <view class="todo-left">
         <text class="todo-icon">⚠</text>
         <view class="todo-info">
-          <text class="todo-title">您有 {{ pendingEvalCount }} 份下属绩效待评估</text>
-          <text class="todo-desc">点击查看详情</text>
+          <text class="todo-title">您有 {{ pendingEvalCount }} 份绩效待评分</text>
+          <text class="todo-desc">数据填报已完成，请进行打分</text>
         </view>
       </view>
       <text class="todo-arrow">→</text>
     </view>
 
-    <!-- 部门负责人：待复核 -->
-    <view
-      v-if="showReviewTodo && pendingReviewCount > 0"
-      class="todo-card card todo-important"
-      @click="$emit('navigate', 'team-eval', 'review')"
-    >
-      <view class="todo-left">
-        <text class="todo-icon">🔍</text>
-        <view class="todo-info">
-          <text class="todo-title">您有 {{ pendingReviewCount }} 份绩效待复核</text>
-          <text class="todo-desc">指标已确认，请复核员工自评完成情况</text>
-        </view>
-      </view>
-      <text class="todo-arrow">→</text>
-    </view>
-
-    <!-- 主管：待校准 -->
+    <!-- 部门负责人：待校准 -->
     <view
       v-if="showCalibrateTodo && pendingCalibrateCount > 0"
-      class="todo-card card"
+      class="todo-card card todo-important"
       @click="$emit('navigate', 'team-eval', 'calibrate')"
     >
       <view class="todo-left">
-        <text class="todo-icon">✅</text>
+        <text class="todo-icon">🎯</text>
         <view class="todo-info">
           <text class="todo-title">您有 {{ pendingCalibrateCount }} 份绩效待校准</text>
-          <text class="todo-desc">评估已完成，请进行绩效校准</text>
+          <text class="todo-desc">直属领导已完成评分，请进行绩效校准</text>
+        </view>
+      </view>
+      <text class="todo-arrow">→</text>
+    </view>
+
+    <!-- HR：待复核 -->
+    <view
+      v-if="showHRReviewTodo && pendingHRReviewCount > 0"
+      class="todo-card card todo-important"
+      @click="$emit('navigate', 'team-eval', 'hrreview')"
+    >
+      <view class="todo-left">
+        <text class="todo-icon">📋</text>
+        <view class="todo-info">
+          <text class="todo-title">您有 {{ pendingHRReviewCount }} 份绩效待复核</text>
+          <text class="todo-desc">部门负责人已校准，请复核绩效结果</text>
         </view>
       </view>
       <text class="todo-arrow">→</text>
@@ -116,7 +132,6 @@
       <text class="todo-arrow">→</text>
     </view>
 
-    <!-- 空状态 -->
     <EmptyState
       v-if="!hasAnyTodo"
       icon="🎉"
@@ -137,53 +152,59 @@ const props = defineProps({
   indicatorConfirmStatus: { type: String, default: '' },
   pendingEvalCount: { type: Number, default: 0 },
   pendingConfirmCount: { type: Number, default: 0 },
-  pendingReviewCount: { type: Number, default: 0 },
-  pendingCalibrateCount: { type: Number, default: 0 }
+  pendingIndicatorReviewCount: { type: Number, default: 0 },
+  pendingCalibrateCount: { type: Number, default: 0 },
+  pendingHRReviewCount: { type: Number, default: 0 }
 })
 
 defineEmits(['navigate'])
 
-// 员工侧待办
+// 员工：指标填报（Phase 1）
 const showIndicatorTodo = computed(() =>
   props.role === 'employee' &&
   (props.currentNode === 'goal_setting' || props.indicatorConfirmStatus === 'rejected')
 )
 
 const indicatorTodoText = computed(() =>
-  props.indicatorConfirmStatus === 'rejected' ? '指标已被驳回，请重新编辑提交' : '完成指标填报后提交直属主管确认'
+  props.indicatorConfirmStatus === 'rejected' ? '指标已被驳回，请重新编辑提交' : '完成指标填报后提交直属领导确认'
 )
 
-const showSelfEvalTodo = computed(() =>
+// 员工：数据填报（Phase 2）
+const showDataEntryTodo = computed(() =>
   props.role === 'employee' && props.currentNode === 'self_evaluating'
 )
 
-const selfEvalTodoText = computed(() =>
-  '请填写本季度绩效自评'
-)
-
-// 主管侧待办
+// 直属领导：待确认指标
 const showConfirmTodo = computed(() =>
   (props.role === 'manager' || props.role === 'admin') && props.pendingConfirmCount > 0
 )
 
+// 部门负责人：待复核指标
+const showIndicatorReviewTodo = computed(() =>
+  (props.role === 'manager' || props.role === 'admin') && props.pendingIndicatorReviewCount > 0
+)
+
+// 直属领导：待打分
 const showEvalTodo = computed(() =>
   (props.role === 'manager' || props.role === 'admin') && props.pendingEvalCount > 0
 )
 
-const showReviewTodo = computed(() =>
-  (props.role === 'manager' || props.role === 'admin') && props.pendingReviewCount > 0
-)
-
+// 部门负责人：待校准
 const showCalibrateTodo = computed(() =>
   (props.role === 'manager' || props.role === 'admin') && props.pendingCalibrateCount > 0
 )
 
-// 管理员催办
+// HR：待复核
+const showHRReviewTodo = computed(() =>
+  (props.role === 'hr' || props.role === 'admin') && props.pendingHRReviewCount > 0
+)
+
 const showReminder = computed(() => props.role === 'admin')
 
 const hasAnyTodo = computed(() =>
-  showIndicatorTodo.value || showSelfEvalTodo.value ||
-  showConfirmTodo.value || showReviewTodo.value || showEvalTodo.value || showCalibrateTodo.value ||
+  showIndicatorTodo.value || showDataEntryTodo.value ||
+  showConfirmTodo.value || showIndicatorReviewTodo.value ||
+  showEvalTodo.value || showCalibrateTodo.value || showHRReviewTodo.value ||
   showReminder.value
 )
 </script>

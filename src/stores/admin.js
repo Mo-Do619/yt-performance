@@ -8,10 +8,13 @@ export const useAdminStore = defineStore('admin', () => {
     cycle_name: CURRENT_CYCLE,
     personnel_lock_date: '2026-07-20',
     stages: [
-      { key: 'goal_setting', name: '目标制定', deadline_days: 5, reminders_sent: 0 },
-      { key: 'self_evaluating', name: '自评提交', deadline_days: 5, reminders_sent: 1 },
-      { key: 'manager_evaluating', name: '多方评估中', deadline_days: 5, reminders_sent: 0 },
-      { key: 'calibrating', name: '绩效校准', deadline_days: 3, reminders_sent: 0 }
+      { key: 'goal_setting', name: '指标制定', deadline_days: 5, reminders_sent: 0 },
+      { key: 'goal_confirming', name: '指标确认', deadline_days: 3, reminders_sent: 0 },
+      { key: 'indicator_reviewing', name: '指标复核', deadline_days: 3, reminders_sent: 0 },
+      { key: 'self_evaluating', name: '数据填报', deadline_days: 5, reminders_sent: 1 },
+      { key: 'manager_evaluating', name: '直属领导评分', deadline_days: 5, reminders_sent: 0 },
+      { key: 'calibrating', name: '绩效校准', deadline_days: 3, reminders_sent: 0 },
+      { key: 'hr_reviewing', name: 'HR复核', deadline_days: 3, reminders_sent: 0 }
     ],
     auto_sync_personnel: true
   })
@@ -19,7 +22,8 @@ export const useAdminStore = defineStore('admin', () => {
   const overdueStats = ref({
     self_evaluating: 8,
     manager_evaluating: 5,
-    calibrating: 2
+    calibrating: 2,
+    hr_reviewing: 1
   })
 
   // ===== Actions =====

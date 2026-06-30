@@ -1,11 +1,11 @@
-// Mock 数据集 - 覆盖完整流程场景
+// Mock 数据集 - 覆盖四阶段流程场景
 
 // ===== 当前登录用户（可切换） =====
 export const currentUser = {
   id: 'M001',
   name: '张总',
   department: '广州研发中心',
-  role: 'manager',    // employee | manager | admin
+  role: 'manager',
   avatar: ''
 }
 
@@ -17,12 +17,15 @@ export const users = {
   'U004': { id: 'U004', name: '孙xx', department: '广州研发中心', avatar: '' },
   'M001': { id: 'M001', name: '张总', department: '广州研发中心', avatar: '' },
   'M002': { id: 'M002', name: '王工', department: '广州研发中心', avatar: '' },
-  'M003': { id: 'M003', name: '李总', department: '广州研发中心', avatar: '' }
+  'M003': { id: 'M003', name: '李总', department: '广州研发中心', avatar: '' },
+  'H001': { id: 'H001', name: '赵HR', department: '人力资源部', avatar: '' },
+  'A001': { id: 'A001', name: '管理员', department: 'HR与管理中心', avatar: '' }
 }
 
 // ===== 绩效数据 =====
 export const performances = [
   {
+    // 阶段：指标制定（被评人填写目标）
     performance_id: 'P-2026-Q3-001',
     cycle: '2026 Q3',
     employee: { id: 'U001', name: '林xx', department: '广州研发中心', avatar: '' },
@@ -38,24 +41,14 @@ export const performances = [
       score: null,
       submitted_at: null
     },
+    monthly_completion: '',
     manager_evaluations: [
       {
         manager_id: 'M001',
         manager_name: '张总',
-        role_label: '行政主管',
+        role_label: '直属领导',
         is_primary_manager: true,
-        weight: 0.6,
-        indicator_scores: { I001: null, I002: null, I003: null },
-        total_score: null,
-        comment: '',
-        status: 'pending'
-      },
-      {
-        manager_id: 'M002',
-        manager_name: '王工',
-        role_label: '项目主管',
-        is_primary_manager: false,
-        weight: 0.4,
+        weight: 1.0,
         indicator_scores: { I001: null, I002: null, I003: null },
         total_score: null,
         comment: '',
@@ -63,19 +56,28 @@ export const performances = [
       }
     ],
     current_node: 'goal_setting',
-    reviewer_id: 'M003',
-    review_status: 'pending',
-    review_comment: '',
+    indicator_reviewer_id: 'M003',
+    indicator_review_status: 'pending',
+    indicator_review_comment: '',
+    calibrator_id: 'M003',
+    calibration_status: 'pending',
+    calibration_comment: '',
+    hr_reviewer_id: 'H001',
+    hr_review_status: 'pending',
+    hr_review_comment: '',
     performance_grade: null,
     final_score: null,
     deadlines: {
       goal_setting: '2026-07-15',
+      goal_confirming: '2026-07-22',
+      indicator_reviewing: '2026-07-29',
       self_evaluating: '2026-09-20',
       manager_evaluating: '2026-10-10',
       calibrating: '2026-10-20'
     }
   },
   {
+    // 阶段：直属领导评分中（指标已复核通过，被评人已完成数据填报）
     performance_id: 'P-2026-Q3-002',
     cycle: '2026 Q3',
     employee: { id: 'U002', name: '陈xx', department: '深圳研发中心', avatar: '' },
@@ -90,33 +92,43 @@ export const performances = [
       score: 82.5,
       submitted_at: '2026-09-12'
     },
+    monthly_completion: '7月完成架构设计评审，8月完成核心模块开发，9月完成集成测试与上线。各月度均按计划推进，关键里程碑无延期。',
     manager_evaluations: [
       {
         manager_id: 'M001',
         manager_name: '张总',
-        role_label: '行政主管',
+        role_label: '直属领导',
         is_primary_manager: true,
-        weight: 0.7,
+        weight: 1.0,
         indicator_scores: { I101: null, I102: null },
         total_score: null,
         comment: '',
         status: 'pending'
       }
     ],
-    current_node: 'reviewing',
-    reviewer_id: 'M003',
-    review_status: 'pending',
-    review_comment: '',
+    current_node: 'manager_evaluating',
+    indicator_reviewer_id: 'M003',
+    indicator_review_status: 'approved',
+    indicator_review_comment: '指标设定合理，目标明确可衡量，同意按此执行。',
+    calibrator_id: 'M003',
+    calibration_status: 'pending',
+    calibration_comment: '',
+    hr_reviewer_id: 'H001',
+    hr_review_status: 'pending',
+    hr_review_comment: '',
     performance_grade: null,
     final_score: null,
     deadlines: {
       goal_setting: '2026-07-15',
+      goal_confirming: '2026-07-22',
+      indicator_reviewing: '2026-07-29',
       self_evaluating: '2026-09-20',
       manager_evaluating: '2026-10-10',
       calibrating: '2026-10-20'
     }
   },
   {
+    // 阶段：绩效校准中（直属领导已打分，待部门负责人校准）
     performance_id: 'P-2026-Q3-003',
     cycle: '2026 Q3',
     employee: { id: 'U003', name: '赵xx', department: '产品部', avatar: '' },
@@ -132,44 +144,43 @@ export const performances = [
       score: 92,
       submitted_at: '2026-09-10'
     },
+    monthly_completion: '7月完成路线图框架，8月完成用户调研15场，9月完成剩余调研及竞品分析，整体进度正常。',
     manager_evaluations: [
       {
         manager_id: 'M001',
         manager_name: '张总',
-        role_label: '行政主管',
+        role_label: '直属领导',
         is_primary_manager: true,
-        weight: 0.6,
+        weight: 1.0,
         indicator_scores: { I201: 93, I202: 90, I203: 86 },
-        total_score: 90.6,
+        total_score: 90.1,
         comment: '产品规划能力强，用户调研深入，竞品分析全面。',
-        status: 'completed'
-      },
-      {
-        manager_id: 'M002',
-        manager_name: '王工',
-        role_label: '项目主管',
-        is_primary_manager: false,
-        weight: 0.4,
-        indicator_scores: { I201: 90, I202: 88, I203: 85 },
-        total_score: 87.7,
-        comment: '沟通协调能力强，对技术理解到位。',
         status: 'completed'
       }
     ],
     current_node: 'calibrating',
-    reviewer_id: 'M003',
-    review_status: 'approved',
-    review_comment: '自评内容属实，绩效完成情况良好，同意进入评估阶段。经复核，各项指标完成度与自评基本一致。',
+    indicator_reviewer_id: 'M003',
+    indicator_review_status: 'approved',
+    indicator_review_comment: '指标全面覆盖产品核心工作，权重分配合理。',
+    calibrator_id: 'M003',
+    calibration_status: 'pending',
+    calibration_comment: '',
+    hr_reviewer_id: 'H001',
+    hr_review_status: 'pending',
+    hr_review_comment: '',
     performance_grade: 'A',
-    final_score: 89.44,
+    final_score: 90.1,
     deadlines: {
       goal_setting: '2026-07-15',
+      goal_confirming: '2026-07-22',
+      indicator_reviewing: '2026-07-29',
       self_evaluating: '2026-09-20',
       manager_evaluating: '2026-10-10',
       calibrating: '2026-10-20'
     }
   },
   {
+    // 阶段：指标被驳回，需重新编辑
     performance_id: 'P-2026-Q3-004',
     cycle: '2026 Q3',
     employee: { id: 'U004', name: '孙xx', department: '广州研发中心', avatar: '' },
@@ -184,15 +195,37 @@ export const performances = [
       score: null,
       submitted_at: null
     },
-    manager_evaluations: [],
+    monthly_completion: '',
+    manager_evaluations: [
+      {
+        manager_id: 'M001',
+        manager_name: '张总',
+        role_label: '直属领导',
+        is_primary_manager: true,
+        weight: 1.0,
+        indicator_scores: { I301: null, I302: null },
+        total_score: null,
+        comment: '',
+        status: 'pending'
+      }
+    ],
     current_node: 'goal_setting',
-    reviewer_id: 'M003',
-    review_status: 'pending',
-    review_comment: '',
+    indicator_reviewer_id: 'M003',
+    indicator_review_status: 'pending',
+    indicator_review_comment: '',
+    calibrator_id: 'M003',
+    calibration_status: 'pending',
+    calibration_comment: '',
+    hr_reviewer_id: 'H001',
+    hr_review_status: 'pending',
+    hr_review_comment: '',
     performance_grade: null,
     final_score: null,
+    _reject_reason: '指标目标值偏低，请重新制定更具挑战性的目标',
     deadlines: {
       goal_setting: '2026-07-15',
+      goal_confirming: '2026-07-22',
+      indicator_reviewing: '2026-07-29',
       self_evaluating: '2026-09-20',
       manager_evaluating: '2026-10-10',
       calibrating: '2026-10-20'
