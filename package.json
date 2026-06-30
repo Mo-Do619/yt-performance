@@ -1,10 +1,31 @@
 {
   "name": "performance-management",
   "version": "1.0.0",
-  "description": "飞书绩效管理系统 Demo",
+  "description": "绩效管理系统 Demo",
+  "main": "electron/main.js",
   "scripts": {
     "dev:h5": "uni",
-    "build:h5": "uni build"
+    "build:h5": "uni build",
+    "electron:dev": "npm run build:h5 && electron .",
+    "electron:build": "npm run build:h5 && electron-builder --win portable"
+  },
+  "build": {
+    "appId": "com.performance.demo",
+    "productName": "绩效管理系统Demo",
+    "directories": {
+      "output": "release"
+    },
+    "files": [
+      "dist/**/*",
+      "electron/**/*"
+    ],
+    "win": {
+      "target": "portable",
+      "icon": null
+    },
+    "portable": {
+      "artifactName": "绩效管理系统Demo.exe"
+    }
   },
   "dependencies": {
     "@dcloudio/uni-app": "3.0.0-alpha-5010420260626001",
@@ -14,6 +35,8 @@
   },
   "devDependencies": {
     "@dcloudio/vite-plugin-uni": "3.0.0-alpha-5010420260626001",
+    "electron": "^42.5.1",
+    "electron-builder": "^26.15.3",
     "sass": "^1.70.0",
     "sass-embedded": "^1.100.0",
     "vite": "^5.0.0"
